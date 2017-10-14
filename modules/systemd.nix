@@ -144,15 +144,17 @@ in
           (buildServices "timer" cfg.timers)
         );
 
-      home.activation.reloadSystemD = dagEntryAfter ["linkGeneration"] (
-        if cfg.startServices then
-          ''
-            PATH=${dirOf cfg.systemctlPath} \
-              ${pkgs.ruby}/bin/ruby ${./systemd-activate.rb} \
-                "''${oldGenPath=}" "$newGenPath" "${servicesStartTimeoutMs}"
-          ''
-        else import ./systemd-activate.nix cfg.systemctlPath
-      );
+      home.activation = mkIf (!config.nixosSubmodule) {
+        reloadSystemD = dagEntryAfter ["linkGeneration"] (
+          if cfg.startServices then
+            ''
+              PATH=${dirOf cfg.systemctlPath} \
+                ${pkgs.ruby}/bin/ruby ${./systemd-activate.rb} \
+                  "''${oldGenPath=}" "$newGenPath" "${servicesStartTimeoutMs}"
+            ''
+          else import ./systemd-activate.nix cfg.systemctlPath
+        );
+      };
     })
   ];
 }

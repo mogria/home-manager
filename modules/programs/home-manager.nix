@@ -31,7 +31,7 @@ in
     };
   };
 
-  config = mkIf cfg.enable {
+  config = mkIf (cfg.enable && !config.nixosSubmodule) {
     home.packages = [
       (import ../../home-manager {
         inherit pkgs;

@@ -3,6 +3,9 @@
 
   # Whether to enable module type checking.
 , check ? true
+
+  # Whether these modules are inside a NixOS submodule.
+, nixosSubmodule ? false
 }:
 
 with lib;
@@ -72,9 +75,16 @@ let
   ];
 
   pkgsModule = {
+    options.nixosSubmodule = mkOption {
+      type = types.bool;
+      internal = true;
+      readOnly = true;
+    };
+
     config._module.args.baseModules = modules;
     config._module.args.pkgs = lib.mkDefault pkgs;
     config._module.check = check;
+    config.nixosSubmodule = nixosSubmodule;
     config.nixpkgs.system = mkDefault pkgs.system;
   };
 
