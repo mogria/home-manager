@@ -114,7 +114,7 @@ in
         map (v: "shopt -s ${v}") cfg.shellOptions
       );
 
-      export = n: v: "export ${n}=\"${toString v}\"";
+      export = n: v: "export ${n}=\"" + (if isAttrs v then v.rawShValue else toString v) + "\"";
       exportIfNonNull = n: v: optionalString (v != null) (export n v);
       exportIfNonEmpty = n: v: optionalString (v != "") (export n v);
 

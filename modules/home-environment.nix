@@ -124,7 +124,83 @@ in
 
     home.sessionVariables = mkOption {
       default = {};
-      type = types.attrs;
+      type =
+        types.attrsOf
+        (types.coercedTo
+          (types.either types.str types.int)
+          (p: { set = toString p; })
+        (types.submodule ({ config, name, ...}: {
+          options = {
+            set = mkOption {
+              type = types.nullOr types.str;
+              default = null;
+              visible = false;
+              description = ''
+                The value to assign to the variable. This option
+                cannot be used together with <varname>append</varname>
+                and <varname>prepend</varname>.
+              '';
+            };
+
+            append = mkOption {
+              type = types.coercedTo types.str singleton (types.listOf types.str);
+              default = [];
+              visible = false;
+              description = ''
+                Appends the given string to the variable using a
+                configured separator. If given a list then the list
+                elements are first joined using the separator. This
+                option cannot be used together with
+                <varname>set</varname> and <varname>prepend</varname>.
+              '';
+            };
+
+            prepend = mkOption {
+              type = types.coercedTo types.str singleton (types.listOf types.str);
+              default = [];
+              visible = false;
+              description = ''
+                Prepends the given string to the variable using a
+                configured separator. If given a list then the list
+                elements are first joined using the separator. This
+                option cannot be used together with
+                <varname>set</varname> and <varname>append</varname>.
+              '';
+            };
+
+            separator = mkOption {
+              type = types.str;
+              visible = false;
+              description = ''
+                Separator to use when <varname>append</varname> or
+                <varname>prepend</varname> is used.
+              '';
+            };
+
+            rawShValue = mkOption {
+              type = types.str;
+              internal = true;
+            };
+          };
+
+          config = {
+            rawShValue =
+              let
+                sep = "\${${name}:+${config.separator}}";
+                concSep = concatStringsSep config.separator;
+
+                value =
+                  if config.set != null
+                  then config.set
+                  else if config.append != []
+                  then "\$${name}${sep}${concSep config.append}"
+                  else if config.prepend != []
+                  then "${concSep config.prepend}${sep}\$${name}"
+                  else throw "No raw bourne shell value for ${name}";
+              in
+                mkDefault value;
+          };
+        })));
       example = { EDITOR = "emacs"; GS_OPTIONS = "-sPAPERSIZE=a4"; };
       description = ''
         Environment variables to always set at login.
