@@ -1,7 +1,7 @@
 { config, lib, pkgs, ... }:
 
+with config.lib;
 with lib;
-with import ../lib/dag.nix { inherit lib; };
 
 let
 
@@ -42,7 +42,7 @@ in
     # Uninstall manually installed home-manager, if such exists.
     # Without this a file collision error will be printed.
     home.activation.uninstallHomeManager =
-      dagEntryBetween [ "installPackages" ] [ "writeBoundary" ] ''
+      dag.entryBetween [ "installPackages" ] [ "writeBoundary" ] ''
         if nix-env -q | grep -q "^home-manager$" ; then
           $DRY_RUN_CMD nix-env -e home-manager
 

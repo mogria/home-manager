@@ -1,7 +1,7 @@
 { config, lib, pkgs, ... }:
 
+with config.lib;
 with lib;
-with import ../../lib/dag.nix { inherit lib; };
 
 let
 
@@ -90,13 +90,13 @@ in
     (mkIf (cfg.config != null) {
       home.file.".xmonad/xmonad.hs".source = cfg.config;
 
-      home.activation.checkXmonad = dagEntryBefore [ "linkGeneration" ] ''
+      home.activation.checkXmonad = dag.entryBefore [ "linkGeneration" ] ''
         if ! cmp --quiet "${cfg.config}" "$HOME/.xmonad/xmonad.hs"; then
           xmonadChanged=1
         fi
       '';
 
-      home.activation.applyXmonad = dagEntryAfter [ "linkGeneration" ] ''
+      home.activation.applyXmonad = dag.entryAfter [ "linkGeneration" ] ''
         if [[ -v xmonadChanged ]]; then
           echo "Recompiling xmonad"
           ${config.xsession.windowManager.command} --recompile

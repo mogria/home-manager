@@ -1,7 +1,7 @@
 { config, lib, pkgs, ... }:
 
+with config.lib;
 with lib;
-with import ../lib/dag.nix { inherit lib; };
 
 let
 
@@ -181,7 +181,7 @@ in
     home.packages = [ pkgs.gnome3.gnome_terminal ];
 
     # The dconf service needs to be installed and prepared.
-    home.activation.gnomeTerminal = dagEntryAfter ["installPackages"] (
+    home.activation.gnomeTerminal = dag.entryAfter ["installPackages"] (
       let
         iniText = toDconfIni (buildIniSet cfg);
         iniFile = pkgs.writeText "gnome-terminal.ini" iniText;

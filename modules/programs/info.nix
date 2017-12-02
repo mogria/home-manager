@@ -20,8 +20,8 @@
 
 { config, lib, pkgs, ... }:
 
+with config.lib;
 with lib;
-with import ../lib/dag.nix { inherit lib; };
 
 let
 
@@ -63,7 +63,7 @@ in
     home.sessionVariables.INFOPATH =
       "${cfg.homeInfoDirLocation}\${INFOPATH:+:}\${INFOPATH}";
 
-    home.activation.createHomeInfoDir = dagEntryAfter ["installPackages"] ''
+    home.activation.createHomeInfoDir = dag.entryAfter ["installPackages"] ''
       oPATH=$PATH
       export PATH="${lib.makeBinPath [ pkgs.gzip ]}''${PATH:+:}$PATH"
       $DRY_RUN_CMD mkdir -p "${cfg.homeInfoDirLocation}"

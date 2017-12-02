@@ -1,7 +1,7 @@
 { config, lib, pkgs, ... }:
 
+with config.lib;
 with lib;
-with import ../../lib/dag.nix { inherit lib; };
 
 let
 
@@ -621,7 +621,7 @@ in
       xsession.windowManager.command = "${cfg.package}/bin/i3";
       xdg.configFile."i3/config".source = configFile;
 
-      home.activation.checkI3 = dagEntryBefore [ "linkGeneration" ] ''
+      home.activation.checkI3 = dag.entryBefore [ "linkGeneration" ] ''
         if ! cmp --quiet \
             "${configFile}" \
             "${config.xdg.configHome}/i3/config"; then
@@ -629,7 +629,7 @@ in
         fi
       '';
 
-      home.activation.reloadI3 = dagEntryAfter [ "linkGeneration" ] ''
+      home.activation.reloadI3 = dag.entryAfter [ "linkGeneration" ] ''
         if [[ -v i3Changed && -v DISPLAY ]]; then
           echo "Reloading i3"
           ${cfg.package}/bin/i3-msg reload 1>/dev/null

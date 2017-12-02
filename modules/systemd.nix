@@ -1,7 +1,7 @@
 { config, lib, pkgs, ... }:
 
+with config.lib;
 with lib;
-with import ./lib/dag.nix { inherit lib; };
 
 let
 
@@ -118,7 +118,7 @@ in
           (buildServices "timer" cfg.timers)
         );
 
-      home.activation.reloadSystemD = dagEntryAfter ["linkGeneration"] ''
+      home.activation.reloadSystemD = dag.entryAfter ["linkGeneration"] ''
         function isStartable() {
           local service="$1"
           [[ $(systemctl --user show -p RefuseManualStart "$service") == *=no ]]
