@@ -25,6 +25,7 @@ let
     ./misc/pam.nix
     ./misc/qt.nix
     ./misc/xdg.nix
+    ./programs/alacritty.nix
     ./programs/alot.nix
     ./programs/autorandr.nix
     ./programs/bash.nix
